@@ -1,0 +1,52 @@
+server:
+  port: 8021
+spring:
+  #给项目来个名字
+  application:
+    name: rabbitmq-provider
+  #配置rabbitMq 服务器
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: root
+    password: root
+    connection-timeout: 15000
+    #消息确认配置项
+    #本篇文章使用springboot版本为 2.1.7.RELEASE ;
+    #如果你们在配置确认回调，测试发现无法触发回调函数，那么存在原因也许是因为版本导致的配置项不起效，
+    #可以把publisher-confirms: true 替换为  publisher-confirm-type: correlated
+    #确认消息已发送到交换机(Exchange)   发送确认
+    publisher-confirm-type: correlated
+    #确认消息已发送到队列(Queue)   路由失败回调
+    publisher-returns: true
+    template:
+      # 必须设置成true 消息路由失败通知监听者，而不是将消息丢弃
+      mandatory: true
+      listener:
+        simple:
+          # 每次从RabbitMQ获取的消息数量
+          prefetch: 1
+          default-requeue-rejected: false
+          # 每个队列启动的消费者数量
+          concurrency: 1
+          # 每个队列最大的消费者数量
+          max-concurrency: 1
+          # 签收模式为手动签收-那么需要在代码中手动ACK
+          acknowledge-mode: manual
+
+
+
+app:
+  rabbitmq:
+    # 队列定义
+    queue:
+      # 正常业务队列
+      user: user-queue
+      # 死信队列
+      user-dead-letter: user-dead-letter-queue
+    # 交换机定义
+    exchange:
+      # 正常业务交换机
+      user: user-exchange
+      # 死信交换机
+      common-dead-letter: common-dead-letter-exchange

@@ -1,0 +1,45 @@
+
+server:
+  port: 8022
+spring:
+  #给项目来个名字
+  application:
+    name: rabbitmq-consumer
+  #配置rabbitMq 服务器
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: root
+    password: root
+    listener:
+      simple:
+        # 每次从RabbitMQ获取的消息数量
+        prefetch: 1
+        default-requeue-rejected: false
+        # 每个队列启动的消费者数量
+        concurrency: 1
+        # 每个队列最大的消费者数量
+        max-concurrency: 1
+        # 签收模式为手动签收-那么需要在代码中手动ACK
+        #acknowledge-mode: manual
+        # 自动签收
+        acknowledge-mode: auto
+        retry:
+          enabled: true
+          # 第一次尝试时间间隔
+          initial-interval: 10S
+          # 两次尝试之间的最长持续时间。
+          max-interval: 10S
+          # 最大重试次数(=第一次正常投递1+重试次数4)
+          max-attempts: 5
+          # 上一次重试时间的乘数
+          multiplier: 1.0
+
+app:
+  rabbitmq:
+    # 队列定义
+    queue:
+      # 正常业务队列
+      user: user-queue
+      # 死信队列
+      user-dead-letter: user-dead-letter-queue
